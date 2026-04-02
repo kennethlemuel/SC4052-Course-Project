@@ -26,12 +26,43 @@ let isListening = false;
 let heardTranscript = "";
 let listenTimer = null;
 
-function addMessage(role, text) {
+function createMessageNode(role) {
   const node = document.createElement("div");
-  node.className = `message ${role}`;
-  node.textContent = text;
+  node.className = `message ${role} entering`;
   chatLog.appendChild(node);
   chatLog.scrollTop = chatLog.scrollHeight;
+  window.requestAnimationFrame(() => {
+    node.classList.remove("entering");
+  });
+  return node;
+}
+
+function addMessage(role, text) {
+  const node = createMessageNode(role);
+  node.textContent = text;
+  return node;
+}
+
+function addPendingAssistantMessage() {
+  const node = createMessageNode("assistant pending");
+  node.innerHTML = `
+    <span class="pending-label">Planning response</span>
+    <span class="thinking-dots" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
+  `;
+  return node;
+}
+
+async function revealAssistantMessage(node, text) {
+  node.classList.remove("pending");
+  node.textContent = "";
+  const lines = text.split("\n");
+  for (let index = 0; index < lines.length; index += 1) {
+    node.textContent += `${index === 0 ? "" : "\n"}${lines[index]}`;
+    chatLog.scrollTop = chatLog.scrollHeight;
+    await wait(index === 0 ? 110 : 70);
+  }
 }
 
 function speak(text) {
@@ -63,7 +94,12 @@ function renderCards(target, items, render) {
     target.appendChild(empty);
     return;
   }
-  items.forEach((item) => target.appendChild(render(item)));
+  items.forEach((item, index) => {
+    const card = render(item);
+    card.classList.add("stagger-in");
+    card.style.setProperty("--stagger-index", index);
+    target.appendChild(card);
+  });
 }
 
 function summaryCard(day) {
@@ -143,8 +179,10 @@ async function loadWeek() {
 
 async function handleAssistantQuery(text) {
   addMessage("user", text);
+  const pendingNode = addPendingAssistantMessage();
   const data = await postJson("/assistant/query", { text });
-  addMessage("assistant", data.reply);
+  await wait(220);
+  await revealAssistantMessage(pendingNode, data.reply);
   speak(data.reply);
   if (data.analysis?.suggestions) {
     renderCards(planningSignals, data.analysis.suggestions, suggestionCard);
@@ -155,6 +193,10 @@ async function handleAssistantQuery(text) {
   if (data.event || data.analysis) {
     await loadWeek();
   }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 chatForm.addEventListener("submit", async (event) => {

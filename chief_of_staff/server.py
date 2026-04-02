@@ -9,7 +9,7 @@ from http.cookies import SimpleCookie
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, quote, urlencode, urlparse
 from typing import Tuple
 
 from chief_of_staff.models import CalendarSourceSettings, GoogleOAuthConfig
@@ -291,7 +291,7 @@ class ChiefOfStaffHandler(BaseHTTPRequestHandler):
         try:
             CONTEXT.complete_google_auth(session_id, state=state, code=code)
         except ValueError as exc:
-            self._redirect(f"/?google_auth_error={urlencode({'error': str(exc)})}")
+            self._redirect(f"/?google_auth_error={quote(str(exc))}")
             return
         self._redirect("/?google_auth=success")
 

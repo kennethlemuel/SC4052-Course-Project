@@ -1,12 +1,13 @@
 :root {
-  --ink: #1d2733;
-  --paper: #f6f1e8;
-  --panel: rgba(255, 249, 239, 0.82);
-  --accent: #d85c38;
-  --accent-dark: #8f3624;
-  --teal: #0b6e69;
-  --border: rgba(29, 39, 51, 0.12);
-  --shadow: 0 22px 60px rgba(32, 28, 22, 0.12);
+  --ink: #0b0b0b;
+  --paper: #e4e4e4;
+  --panel: rgba(228, 228, 228, 0.86);
+  --panel-strong: rgba(244, 246, 252, 0.94);
+  --accent: #2b396d;
+  --accent-dark: #1e2a52;
+  --teal: #2b396d;
+  --border: rgba(11, 11, 11, 0.12);
+  --shadow: 0 28px 80px rgba(7, 9, 20, 0.28);
 }
 
 * {
@@ -18,9 +19,8 @@ body {
   font-family: Georgia, "Times New Roman", serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(216, 92, 56, 0.25), transparent 30%),
-    radial-gradient(circle at top right, rgba(11, 110, 105, 0.18), transparent 35%),
-    linear-gradient(180deg, #fbf7ef 0%, #efe5d7 100%);
+    radial-gradient(circle at 50% 34%, rgba(72, 92, 162, 0.3), transparent 34%),
+    linear-gradient(180deg, #0b0b0b 0%, #11162c 12%, #223058 36%, #4b5f9f 62%, #c7cfdf 84%, #e4e4e4 100%);
   min-height: 100vh;
 }
 
@@ -61,7 +61,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.72rem;
-  color: var(--teal);
+  color: var(--accent);
 }
 
 h1,
@@ -89,7 +89,7 @@ h1 {
 
 .helper {
   margin-top: 14px;
-  color: rgba(29, 39, 51, 0.72);
+  color: rgba(11, 11, 11, 0.66);
 }
 
 .hero-actions,
@@ -139,13 +139,13 @@ button:hover,
 }
 
 .secondary {
-  background: white;
+  background: rgba(255, 255, 255, 0.7);
   color: var(--ink);
   border: 1px solid var(--border);
 }
 
 .ghost {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.45);
   color: var(--ink);
   border: 1px solid var(--border);
 }
@@ -176,7 +176,7 @@ button:hover,
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(29, 39, 51, 0.62);
+  color: rgba(11, 11, 11, 0.58);
   margin-bottom: 6px;
 }
 
@@ -202,7 +202,7 @@ button:hover,
 
 .panel-copy {
   margin: 0 0 18px;
-  color: rgba(29, 39, 51, 0.72);
+  color: rgba(11, 11, 11, 0.68);
   line-height: 1.5;
 }
 
@@ -228,18 +228,60 @@ button:hover,
   border-radius: 18px;
   line-height: 1.5;
   white-space: pre-wrap;
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 320ms ease, opacity 320ms ease, box-shadow 320ms ease;
+}
+
+.message.entering {
+  transform: translateY(12px);
+  opacity: 0;
 }
 
 .message.user {
-  background: rgba(216, 92, 56, 0.12);
+  background: rgba(43, 57, 109, 0.13);
 }
 
 .message.assistant {
-  background: white;
+  background: var(--panel-strong);
+  box-shadow: 0 12px 30px rgba(20, 28, 54, 0.08);
 }
 
 .message.system {
-  background: rgba(11, 110, 105, 0.1);
+  background: rgba(43, 57, 109, 0.09);
+}
+
+.message.pending {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.pending-label {
+  color: rgba(11, 11, 11, 0.72);
+}
+
+.thinking-dots {
+  display: inline-flex;
+  gap: 7px;
+}
+
+.thinking-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.35;
+  animation: dotPulse 1.1s infinite ease-in-out;
+}
+
+.thinking-dots span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.thinking-dots span:nth-child(3) {
+  animation-delay: 0.32s;
 }
 
 textarea,
@@ -249,7 +291,7 @@ select {
   padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(249, 250, 255, 0.88);
   font: inherit;
 }
 
@@ -274,16 +316,23 @@ select {
 
 .source-note {
   margin: 0;
-  color: rgba(29, 39, 51, 0.62);
+  color: rgba(11, 11, 11, 0.6);
   line-height: 1.45;
   font-size: 0.92rem;
 }
 
 .card {
-  background: white;
+  background: var(--panel-strong);
   border-radius: 18px;
   padding: 16px;
-  border: 1px solid rgba(29, 39, 51, 0.08);
+  border: 1px solid rgba(11, 11, 11, 0.08);
+}
+
+.stagger-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cardRise 420ms ease forwards;
+  animation-delay: calc(var(--stagger-index, 0) * 80ms);
 }
 
 .card strong {
@@ -292,7 +341,33 @@ select {
 }
 
 .muted {
-  color: rgba(29, 39, 51, 0.62);
+  color: rgba(11, 11, 11, 0.6);
+}
+
+@keyframes dotPulse {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes cardRise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .week-panel {

@@ -4,6 +4,7 @@ import os
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlencode
 from typing import List, Optional
 
 from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig
@@ -65,11 +66,15 @@ class GoogleCalendarAdapter(CalendarAdapter):
 
     def list_events(self, start: datetime, end: datetime) -> List[CalendarEvent]:
         self._ensure_access_token()
-        url = (
-            f"{self.base_url}/events"
-            f"?singleEvents=true&orderBy=startTime"
-            f"&timeMin={start.isoformat()}&timeMax={end.isoformat()}"
+        params = urlencode(
+            {
+                "singleEvents": "true",
+                "orderBy": "startTime",
+                "timeMin": start.isoformat(),
+                "timeMax": end.isoformat(),
+            }
         )
+        url = f"{self.base_url}/events?{params}"
         try:
             raw = json_request("GET", url, headers=self._headers())
         except Exception as exc:
