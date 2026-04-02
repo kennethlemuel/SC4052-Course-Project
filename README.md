@@ -27,7 +27,10 @@ flowchart LR
 
 - `POST /assistant/query`
 - `GET /calendar/week-summary`
+- `GET /calendar/source`
 - `POST /calendar/events`
+- `GET /auth/google/start`
+- `GET /auth/google/callback`
 - `POST /planner/suggest-slots`
 - `POST /planner/protect-focus-time`
 
@@ -41,18 +44,43 @@ Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 ## Google Calendar Integration
 
-The app uses the local demo adapter by default. To switch to Google Calendar:
+The app uses the local demo adapter by default. End users can connect Google Calendar with a normal sign-in flow once the app owner configures Google OAuth once.
 
-1. Create an OAuth access token for Google Calendar with access to `https://www.googleapis.com/auth/calendar`.
-2. Export it into the environment before running the server:
+### One-time owner setup
+
+1. In Google Cloud, enable the Google Calendar API.
+2. Configure the OAuth consent screen.
+3. Create an OAuth client for a web application.
+4. Add `http://127.0.0.1:8000/auth/google/callback` to the authorized redirect URIs for local development.
+5. Create `data/google_oauth_client.json` with this shape:
+
+```json
+{
+  "client_id": "YOUR_GOOGLE_CLIENT_ID",
+  "client_secret": "YOUR_GOOGLE_CLIENT_SECRET",
+  "redirect_uri": "http://127.0.0.1:8000/auth/google/callback"
+}
+```
+
+The file is ignored by git.
+
+You can also provide the same values with environment variables:
 
 ```bash
-export GOOGLE_CALENDAR_ACCESS_TOKEN="your-access-token"
-export GOOGLE_CALENDAR_ID="primary"
+export GOOGLE_OAUTH_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID"
+export GOOGLE_OAUTH_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
+export GOOGLE_OAUTH_REDIRECT_URI="http://127.0.0.1:8000/auth/google/callback"
 python3 app.py
 ```
 
-When the token is present, the `GoogleCalendarAdapter` is used for listing and creating events.
+### End-user flow
+
+1. Open the app.
+2. Click `Connect Google Calendar`.
+3. Sign in with Google and approve calendar access.
+4. The assistant switches from the demo calendar to the user's real Google Calendar.
+
+Prototype note: the current implementation stores the connected calendar only for the active browser session. A production multi-user deployment should move sessions and tokens into a real database-backed auth/session layer.
 
 ## Demo prompts
 

@@ -38,6 +38,8 @@ class UserProfile:
 class CalendarSourceSettings:
     mode: str = "local"
     access_token: str = ""
+    refresh_token: str = ""
+    expires_at: str = ""
     calendar_id: str = "primary"
 
     def to_public_dict(self) -> Dict[str, Any]:
@@ -46,8 +48,18 @@ class CalendarSourceSettings:
             "mode": self.mode,
             "label": "Google Calendar" if is_google else "Demo calendar",
             "calendar_id": self.calendar_id,
-            "needs_token": is_google and not bool(self.access_token),
+            "connected": bool(self.access_token) if is_google else True,
         }
+
+
+@dataclass
+class GoogleOAuthConfig:
+    client_id: str = ""
+    client_secret: str = ""
+    redirect_uri: str = ""
+
+    def is_configured(self) -> bool:
+        return bool(self.client_id and self.client_secret and self.redirect_uri)
 
 
 @dataclass

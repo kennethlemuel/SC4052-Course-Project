@@ -41,26 +41,11 @@
           <div class="metric">
             <span class="metric-label">Calendar Source</span>
             <strong id="provider-name">Demo calendar</strong>
-            <button id="toggle-calendar-source" class="secondary small">Change source</button>
-            <form id="calendar-source-form" class="source-form hidden">
-              <label for="calendar-mode">Source</label>
-              <select id="calendar-mode">
-                <option value="local">Demo calendar</option>
-                <option value="google">Google Calendar</option>
-              </select>
-              <div id="google-source-fields" class="source-fields hidden">
-                <label for="calendar-id">Calendar ID</label>
-                <input id="calendar-id" type="text" value="primary" placeholder="primary" />
-                <label for="calendar-token">Access token</label>
-                <textarea id="calendar-token" rows="3" placeholder="Paste a Google OAuth access token"></textarea>
-                <p class="source-note">
-                  Prototype note: this uses a pasted Google Calendar access token for now, not a full sign-in flow.
-                </p>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="primary small">Apply</button>
-              </div>
-            </form>
+            <div class="source-actions">
+              <a id="connect-google" class="button secondary small hidden" href="/auth/google/start">Connect Google Calendar</a>
+              <button id="disconnect-google" class="ghost small hidden">Use demo calendar</button>
+            </div>
+            <p id="calendar-source-note" class="source-note"></p>
           </div>
           <div class="metric">
             <span class="metric-label">Voice</span>

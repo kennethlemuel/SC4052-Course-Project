@@ -113,8 +113,19 @@ button {
   transition: transform 180ms ease, opacity 180ms ease;
 }
 
-button:hover {
+button:hover,
+.button:hover {
   transform: translateY(-1px);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .small {
@@ -250,15 +261,15 @@ select {
   margin-bottom: 16px;
 }
 
-.source-form {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
+.hidden {
+  display: none;
 }
 
-.source-form.hidden,
-.source-fields.hidden {
-  display: none;
+.source-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .source-note {

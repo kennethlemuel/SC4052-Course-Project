@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date, datetime, time, timedelta
 from typing import Iterable, List, Optional, Tuple
@@ -65,6 +66,17 @@ def json_request(method: str, url: str, headers: Optional[dict] = None, payload:
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, method=method, data=data, headers=req_headers)
+    with urllib.request.urlopen(req, timeout=15) as response:
+        body = response.read().decode("utf-8")
+        return json.loads(body) if body else {}
+
+
+def form_request(url: str, payload: dict, headers: Optional[dict] = None) -> dict:
+    req_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    if headers:
+        req_headers.update(headers)
+    data = urllib.parse.urlencode(payload).encode("utf-8")
+    req = urllib.request.Request(url, method="POST", data=data, headers=req_headers)
     with urllib.request.urlopen(req, timeout=15) as response:
         body = response.read().decode("utf-8")
         return json.loads(body) if body else {}

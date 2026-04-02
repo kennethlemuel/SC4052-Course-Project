@@ -8,12 +8,9 @@ const providerName = document.querySelector("#provider-name");
 const voiceStatus = document.querySelector("#voice-status");
 const lastHeard = document.querySelector("#last-heard");
 const weekHealth = document.querySelector("#week-health");
-const toggleCalendarSource = document.querySelector("#toggle-calendar-source");
-const calendarSourceForm = document.querySelector("#calendar-source-form");
-const calendarMode = document.querySelector("#calendar-mode");
-const googleSourceFields = document.querySelector("#google-source-fields");
-const calendarId = document.querySelector("#calendar-id");
-const calendarToken = document.querySelector("#calendar-token");
+const connectGoogle = document.querySelector("#connect-google");
+const disconnectGoogle = document.querySelector("#disconnect-google");
+const calendarSourceNote = document.querySelector("#calendar-source-note");
 
 const speakButton = document.querySelector("#speak-btn");
 const stopButton = document.querySelector("#stop-btn");
@@ -116,6 +113,25 @@ function buildWeekHealth(summary, analysis) {
   return `${events} events with ${issues} planning signals to review.`;
 }
 
+function applySourceState(source) {
+  providerName.textContent = source.label;
+  connectGoogle.classList.toggle("hidden", !source.oauth_ready || source.mode === "google");
+  disconnectGoogle.classList.toggle("hidden", source.mode !== "google");
+
+  if (!source.oauth_ready) {
+    calendarSourceNote.textContent =
+      "Owner setup required once: add Google OAuth client credentials on the server, then users can connect normally.";
+    return;
+  }
+
+  if (source.mode === "google" && source.connected) {
+    calendarSourceNote.textContent = "Connected with Google OAuth. Events now come from your Google Calendar.";
+    return;
+  }
+
+  calendarSourceNote.textContent = "Connect Google Calendar to replace the demo schedule with your real events.";
+}
+
 async function loadWeek() {
   const response = await fetch("/calendar/week-summary");
   const data = await response.json();
@@ -141,13 +157,6 @@ async function handleAssistantQuery(text) {
   }
 }
 
-function applySourceState(source) {
-  providerName.textContent = source.label;
-  calendarMode.value = source.mode;
-  calendarId.value = source.calendar_id || "primary";
-  updateSourceFieldVisibility();
-}
-
 chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const text = chatInput.value.trim();
@@ -160,7 +169,7 @@ chatForm.addEventListener("submit", async (event) => {
 
 refreshButton.addEventListener("click", async () => {
   await loadWeek();
-  addMessage("system", "Week summary refreshed.");
+  addMessage("system", "Upcoming schedule refreshed.");
 });
 
 slotForm.addEventListener("submit", async (event) => {
@@ -195,30 +204,13 @@ focusForm.addEventListener("submit", async (event) => {
   quickResults.appendChild(node);
 });
 
-toggleCalendarSource.addEventListener("click", () => {
-  calendarSourceForm.classList.toggle("hidden");
-});
-
-calendarMode.addEventListener("change", () => {
-  updateSourceFieldVisibility();
-});
-
-calendarSourceForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const payload = {
-    mode: calendarMode.value,
-    calendar_id: calendarId.value.trim() || "primary",
-    access_token: calendarToken.value.trim(),
-  };
-  const data = await postJson("/calendar/source", payload);
+disconnectGoogle.addEventListener("click", async () => {
+  const data = await postJson("/calendar/source", { mode: "local" });
   if (data.error) {
     addMessage("system", data.error);
     return;
   }
-  applySourceState(data.source);
-  calendarSourceForm.classList.add("hidden");
-  calendarToken.value = "";
-  addMessage("system", `Calendar source switched to ${data.source.label}.`);
+  addMessage("system", "Switched back to the demo calendar.");
   await loadWeek();
 });
 
@@ -365,9 +357,18 @@ function voiceErrorMessage(code) {
   return "Voice recognition failed. You can still type your request.";
 }
 
-function updateSourceFieldVisibility() {
-  const isGoogle = calendarMode.value === "google";
-  googleSourceFields.classList.toggle("hidden", !isGoogle);
+function handleOAuthResultMessage() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("google_auth") === "success") {
+    addMessage("system", "Google Calendar connected successfully.");
+  }
+  const rawError = params.get("error") || params.get("google_auth_error");
+  if (rawError) {
+    addMessage("system", rawError);
+  }
+  if (params.toString()) {
+    window.history.replaceState({}, "", window.location.pathname);
+  }
 }
 
 addMessage(
@@ -375,5 +376,5 @@ addMessage(
   "I can summarize your week, add an event, suggest the best slot for work, or protect focus time.\n\nTry:\n• What does my week look like?\n• Add project sync tomorrow at 3 pm for 1 hour."
 );
 setupVoice();
-updateSourceFieldVisibility();
+handleOAuthResultMessage();
 loadWeek();

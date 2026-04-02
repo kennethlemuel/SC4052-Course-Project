@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List
 
-from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, UserProfile
+from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig, UserProfile
 
 
 class JsonStore:
@@ -15,6 +15,7 @@ class JsonStore:
         self.events_path = self.root / "events.json"
         self.profile_path = self.root / "profile.json"
         self.calendar_source_path = self.root / "calendar_source.json"
+        self.google_oauth_path = self.root / "google_oauth_client.json"
 
     def load_events(self) -> List[CalendarEvent]:
         if not self.events_path.exists():
@@ -43,6 +44,12 @@ class JsonStore:
 
     def save_calendar_source(self, settings: CalendarSourceSettings) -> None:
         self.calendar_source_path.write_text(json.dumps(settings.__dict__, indent=2))
+
+    def load_google_oauth_config(self) -> GoogleOAuthConfig:
+        if not self.google_oauth_path.exists():
+            return GoogleOAuthConfig()
+        raw = json.loads(self.google_oauth_path.read_text())
+        return GoogleOAuthConfig(**raw)
 
     @staticmethod
     def _event_from_dict(data: dict) -> CalendarEvent:
