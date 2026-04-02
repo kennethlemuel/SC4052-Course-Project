@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week Planner Agent</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Personal Assistant-as-a-Service</p>
+          <h1>Week Planner Agent</h1>
+          <p class="lede">
+            A voice-first calendar chief of staff that summarizes your week,
+            spots overload, and recommends where your focus time should go.
+          </p>
+          <div class="hero-actions">
+            <button id="speak-btn" class="primary">Speak to assistant</button>
+            <button id="stop-btn" class="ghost">Stop listening</button>
+            <button id="refresh-btn" class="secondary">Refresh week</button>
+          </div>
+          <p class="helper">
+            Try: “What matters this week?”, “Add revision tomorrow at 3 pm for 2 hours”, or “Find the best slot for study”.
+          </p>
+        </div>
+        <article class="panel panel-chat hero-chat">
+          <div class="panel-header">
+            <h2>Assistant</h2>
+          </div>
+          <div id="chat-log" class="chat-log compact"></div>
+          <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Ask about your week or tell the assistant to add something..."></textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary">Send</button>
+            </div>
+          </form>
+        </article>
+        <div class="hero-card control-card">
+          <div class="metric">
+            <span class="metric-label">Calendar Source</span>
+            <strong id="provider-name">Demo calendar</strong>
+            <button id="toggle-calendar-source" class="secondary small">Change source</button>
+            <form id="calendar-source-form" class="source-form hidden">
+              <label for="calendar-mode">Source</label>
+              <select id="calendar-mode">
+                <option value="local">Demo calendar</option>
+                <option value="google">Google Calendar</option>
+              </select>
+              <div id="google-source-fields" class="source-fields hidden">
+                <label for="calendar-id">Calendar ID</label>
+                <input id="calendar-id" type="text" value="primary" placeholder="primary" />
+                <label for="calendar-token">Access token</label>
+                <textarea id="calendar-token" rows="3" placeholder="Paste a Google OAuth access token"></textarea>
+                <p class="source-note">
+                  Prototype note: this uses a pasted Google Calendar access token for now, not a full sign-in flow.
+                </p>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="primary small">Apply</button>
+              </div>
+            </form>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Voice</span>
+            <strong id="voice-status">Ready</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Last Heard</span>
+            <strong id="last-heard">Waiting for voice input</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">This Week</span>
+            <strong id="week-health">Loading schedule health...</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel week-panel">
+          <div class="panel-header">
+            <h2>Upcoming</h2>
+          </div>
+          <div id="week-summary" class="stack"></div>
+        </article>
+
+        <article class="panel signals-panel">
+          <div class="panel-header">
+            <h2>Planning Signals</h2>
+          </div>
+          <div id="planning-signals" class="stack"></div>
+        </article>
+
+        <article class="panel actions-panel">
+          <div class="panel-header">
+            <h2>Quick Actions</h2>
+          </div>
+          <p class="panel-copy">
+            Pick a task and a duration. The assistant will suggest a slot or propose a protected focus block.
+          </p>
+          <form id="slot-form" class="action-form">
+            <label for="slot-purpose">Find time for</label>
+            <input id="slot-purpose" type="text" value="study" />
+            <div class="inline">
+              <select id="slot-duration">
+                <option value="60">1 hour</option>
+                <option value="90">90 minutes</option>
+                <option value="120" selected>2 hours</option>
+                <option value="180">3 hours</option>
+              </select>
+              <button type="submit" class="secondary">Suggest</button>
+            </div>
+          </form>
+          <form id="focus-form" class="action-form">
+            <label for="focus-duration">Protect focus time for</label>
+            <div class="inline">
+              <select id="focus-duration">
+                <option value="60">1 hour</option>
+                <option value="90">90 minutes</option>
+                <option value="120" selected>2 hours</option>
+                <option value="180">3 hours</option>
+              </select>
+              <button type="submit" class="secondary">Propose</button>
+            </div>
+          </form>
+          <div id="quick-results" class="stack"></div>
+        </article>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
