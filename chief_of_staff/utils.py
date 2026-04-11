@@ -58,7 +58,13 @@ def sort_events(events: Iterable[CalendarEvent]) -> List[CalendarEvent]:
     return sorted(events, key=lambda event: event.start)
 
 
-def json_request(method: str, url: str, headers: Optional[dict] = None, payload: Optional[dict] = None) -> dict:
+def json_request(
+    method: str,
+    url: str,
+    headers: Optional[dict] = None,
+    payload: Optional[dict] = None,
+    timeout: int = 15,
+) -> dict:
     data = None
     req_headers = {"Content-Type": "application/json"}
     if headers:
@@ -66,7 +72,7 @@ def json_request(method: str, url: str, headers: Optional[dict] = None, payload:
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, method=method, data=data, headers=req_headers)
-    with urllib.request.urlopen(req, timeout=15) as response:
+    with urllib.request.urlopen(req, timeout=timeout) as response:
         body = response.read().decode("utf-8")
         return json.loads(body) if body else {}
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from chief_of_staff.models import CalendarEvent
 from chief_of_staff.services.calendar_adapters import CalendarAdapter
@@ -17,6 +17,20 @@ class CalendarService:
 
     def create_event(self, title: str, start: datetime, end: datetime, location: str = "", notes: str = "") -> CalendarEvent:
         return self.adapter.create_event(title, start, end, location=location, notes=notes)
+
+    def update_event(
+        self,
+        event_id: str,
+        start: datetime,
+        end: datetime,
+        title: Optional[str] = None,
+        location: Optional[str] = None,
+        notes: Optional[str] = None,
+    ) -> CalendarEvent:
+        return self.adapter.update_event(event_id, start, end, title=title, location=location, notes=notes)
+
+    def delete_event(self, event_id: str) -> None:
+        self.adapter.delete_event(event_id)
 
     def weekly_summary(self, start: datetime, end: datetime) -> Dict[str, object]:
         events = self.list_events(start, end)

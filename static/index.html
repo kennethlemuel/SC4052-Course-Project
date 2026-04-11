@@ -3,116 +3,396 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Week Planner Agent</title>
+    <title>Study Buddy</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Personal Assistant-as-a-Service</p>
-          <h1>Week Planner Agent</h1>
-          <p class="lede">
-            A voice-first calendar chief of staff that summarizes your week,
-            spots overload, and recommends where your focus time should go.
-          </p>
-          <div class="hero-actions">
-            <button id="speak-btn" class="primary">Speak to assistant</button>
-            <button id="stop-btn" class="ghost">Stop listening</button>
-            <button id="refresh-btn" class="secondary">Refresh week</button>
-          </div>
-          <p class="helper">
-            Try: “What matters this week?”, “Add revision tomorrow at 3 pm for 2 hours”, or “Find the best slot for study”.
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="brand-kicker">Focused revision workspace</p>
+          <h1>Study Buddy</h1>
+          <p class="brand-note">
+            Save your notes, revise by topic, and keep track of how ready you are.
           </p>
         </div>
-        <article class="panel panel-chat hero-chat">
-          <div class="panel-header">
-            <h2>Assistant</h2>
+
+        <section class="focus-bar">
+          <div class="focus-copy">
+            <span class="micro-label">Current focus</span>
+            <h2 id="exam-title">Loading...</h2>
+            <p id="exam-date">Loading...</p>
           </div>
-          <div id="chat-log" class="chat-log compact"></div>
-          <form id="chat-form" class="chat-form">
-            <textarea id="chat-input" rows="2" placeholder="Ask about your week or tell the assistant to add something..."></textarea>
-            <div class="form-actions">
-              <button type="submit" class="primary">Send</button>
-            </div>
-          </form>
-        </article>
-        <div class="hero-card control-card">
-          <div class="metric">
-            <span class="metric-label">Calendar Source</span>
-            <strong id="provider-name">Demo calendar</strong>
-            <div class="source-actions">
-              <a id="connect-google" class="button secondary small hidden" href="/auth/google/start">Connect Google Calendar</a>
-              <button id="disconnect-google" class="ghost small hidden">Use demo calendar</button>
-            </div>
-            <p id="calendar-source-note" class="source-note"></p>
+          <div class="focus-metrics">
+            <article class="metric-tile">
+              <span>Ready</span>
+              <strong id="readiness-score">--</strong>
+            </article>
+            <article class="metric-tile">
+              <span>Target</span>
+              <strong id="target-score">--</strong>
+            </article>
+            <article class="metric-tile">
+              <span>Days left</span>
+              <strong id="exam-countdown">--</strong>
+            </article>
+            <article class="metric-tile">
+              <span>Study next</span>
+              <strong id="next-focus">--</strong>
+            </article>
           </div>
-          <div class="metric">
-            <span class="metric-label">Voice</span>
-            <strong id="voice-status">Ready</strong>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Last Heard</span>
-            <strong id="last-heard">Waiting for voice input</strong>
-          </div>
-          <div class="metric">
-            <span class="metric-label">This Week</span>
-            <strong id="week-health">Loading schedule health...</strong>
-          </div>
+        </section>
+      </header>
+
+      <section class="toolbar">
+        <nav class="section-tabs" aria-label="Sections">
+          <button class="section-tab active" data-page="overview">Overview</button>
+          <button class="section-tab" data-page="materials">Materials</button>
+          <button class="section-tab" data-page="study">Study Room</button>
+          <button class="section-tab" data-page="cram">Cram Mode</button>
+        </nav>
+
+        <div class="toolbar-actions">
+          <button id="refresh-btn" class="secondary">Refresh</button>
+          <button id="tonight-btn" class="primary">Plan tonight</button>
+          <button id="panic-btn" class="warning">Open cram mode</button>
         </div>
       </section>
 
-      <section class="grid">
-        <article class="panel week-panel">
-          <div class="panel-header">
-            <h2>Upcoming</h2>
-          </div>
-          <div id="week-summary" class="stack"></div>
-        </article>
-
-        <article class="panel signals-panel">
-          <div class="panel-header">
-            <h2>Planning Signals</h2>
-          </div>
-          <div id="planning-signals" class="stack"></div>
-        </article>
-
-        <article class="panel actions-panel">
-          <div class="panel-header">
-            <h2>Quick Actions</h2>
-          </div>
-          <p class="panel-copy">
-            Pick a task and a duration. The assistant will suggest a slot or propose a protected focus block.
-          </p>
-          <form id="slot-form" class="action-form">
-            <label for="slot-purpose">Find time for</label>
-            <input id="slot-purpose" type="text" value="study" />
-            <div class="inline">
-              <select id="slot-duration">
-                <option value="60">1 hour</option>
-                <option value="90">90 minutes</option>
-                <option value="120" selected>2 hours</option>
-                <option value="180">3 hours</option>
-              </select>
-              <button type="submit" class="secondary">Suggest</button>
+      <main class="content-shell">
+        <section id="page-overview" class="page active">
+          <div class="page-heading">
+            <div>
+              <h2>Overview</h2>
+              <p>See your focus, weak topics, and upcoming work at a glance.</p>
             </div>
-          </form>
-          <form id="focus-form" class="action-form">
-            <label for="focus-duration">Protect focus time for</label>
-            <div class="inline">
-              <select id="focus-duration">
-                <option value="60">1 hour</option>
-                <option value="90">90 minutes</option>
-                <option value="120" selected>2 hours</option>
-                <option value="180">3 hours</option>
-              </select>
-              <button type="submit" class="secondary">Propose</button>
+            <div class="confidence-box">
+              <span class="micro-label">Confidence gap</span>
+              <strong id="confidence-gap">--</strong>
+              <p id="confidence-risk">Loading...</p>
             </div>
-          </form>
-          <div id="quick-results" class="stack"></div>
-        </article>
-      </section>
-    </main>
+          </div>
+
+          <div class="page-grid overview-grid">
+            <article class="panel panel-accent">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Plan</span>
+                  <h3>Tonight</h3>
+                </div>
+                <span class="quiet-pill">Fast</span>
+              </div>
+              <div id="overview-plan" class="stack"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Topics</span>
+                  <h3>Weak topics</h3>
+                </div>
+              </div>
+              <div id="overview-weakness" class="stack panel-scroll medium-scroll"></div>
+            </article>
+
+            <article class="panel panel-soft">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Upcoming</span>
+                  <h3>Exams and assignments</h3>
+                </div>
+              </div>
+              <form id="academic-form" class="action-form compact-form">
+                <label for="item-title">Title</label>
+                <input id="item-title" type="text" placeholder="SC4052 Final Exam" />
+                <div class="inline">
+                  <div class="field-block">
+                    <label for="item-subject">Subject</label>
+                    <input id="item-subject" type="text" placeholder="SC4052" />
+                  </div>
+                  <div class="field-block">
+                    <label for="item-kind">Type</label>
+                    <select id="item-kind">
+                      <option value="exam">Exam</option>
+                      <option value="assignment">Assignment</option>
+                      <option value="quiz">Quiz</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="inline">
+                  <div class="field-block">
+                    <label for="item-date">Due date</label>
+                    <input id="item-date" type="date" />
+                  </div>
+                  <div class="field-block action-end">
+                    <button type="submit" class="primary block">Add item</button>
+                  </div>
+                </div>
+              </form>
+              <div id="academic-list" class="summary-list panel-scroll medium-scroll"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-materials" class="page hidden">
+          <div class="page-heading">
+            <div>
+              <h2>Materials</h2>
+              <p>Keep your notes and turn them into study topics and practice prompts.</p>
+            </div>
+          </div>
+
+          <div class="page-grid materials-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Upload</span>
+                  <h3>Add notes</h3>
+                </div>
+              </div>
+              <form id="materials-form" class="action-form">
+                <label for="materials-title">Material title</label>
+                <input id="materials-title" type="text" placeholder="Week 9 lecture notes" />
+                <label for="materials-file">Upload a file</label>
+                <div class="file-picker">
+                  <label for="materials-file" class="file-trigger">Choose file</label>
+                  <span id="materials-file-name" class="file-chip">No file chosen</span>
+                  <input
+                    id="materials-file"
+                    class="file-input-hidden"
+                    type="file"
+                    accept=".txt,.md,.csv,.json,.pdf,text/plain,text/markdown,text/csv,application/json,application/pdf"
+                  />
+                </div>
+                <p id="materials-file-status" class="helper-copy">
+                  Upload a text file to fill the notes box, or upload a PDF to extract its text when you save.
+                </p>
+                <label for="materials-text">Paste notes</label>
+                <textarea
+                  id="materials-text"
+                  rows="10"
+                  placeholder="Virtualization&#10;Type-1 vs Type-2 hypervisors&#10;Isolation tradeoffs&#10;&#10;Containers&#10;Namespaces and cgroups"
+                ></textarea>
+                <button type="submit" class="primary block">Save material</button>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Library</span>
+                  <h3>Your materials</h3>
+                </div>
+              </div>
+              <div id="materials-output" class="stack panel-scroll tall-scroll"></div>
+            </article>
+
+            <article class="panel panel-wide">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Practice</span>
+                  <h3>Prompts from your notes</h3>
+                </div>
+              </div>
+              <div id="recall-deck" class="stack panel-scroll short-scroll"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-study" class="page hidden">
+          <div class="page-heading">
+            <div>
+              <h2>Study Room</h2>
+              <p>A quieter space for planning, asking questions, and tracking revision.</p>
+            </div>
+          </div>
+
+          <div class="page-grid study-grid">
+            <article class="panel study-main">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Coach</span>
+                  <h3>Ask what to study</h3>
+                </div>
+              </div>
+              <div id="chat-log" class="chat-log panel-scroll chat-scroll"></div>
+              <form id="chat-form" class="chat-form">
+                <textarea
+                  id="chat-input"
+                  rows="3"
+                  placeholder="What should I study tonight? Which lesson am I weak at? What should I revise before the exam?"
+                ></textarea>
+                <div class="form-actions">
+                  <button type="submit" class="primary">Ask coach</button>
+                </div>
+              </form>
+            </article>
+
+            <div class="study-side">
+              <article class="panel">
+                <div class="panel-head">
+                  <div>
+                    <span class="micro-label">Quick plan</span>
+                    <h3>Tonight</h3>
+                  </div>
+                </div>
+                <form id="plan-form" class="action-form compact-form">
+                  <label for="plan-minutes">Time available</label>
+                  <div class="inline">
+                    <select id="plan-minutes">
+                      <option value="45">45 minutes</option>
+                      <option value="90" selected>90 minutes</option>
+                      <option value="120">2 hours</option>
+                      <option value="180">3 hours</option>
+                    </select>
+                    <button type="submit" class="secondary">Build</button>
+                  </div>
+                </form>
+                <div id="plan-output" class="stack panel-scroll short-scroll"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <div>
+                    <span class="micro-label">After study</span>
+                    <h3>Readiness check</h3>
+                  </div>
+                </div>
+                <form id="checkin-form" class="action-form compact-form">
+                  <label for="checkin-topic">Topic</label>
+                  <select id="checkin-topic"></select>
+                  <label for="checkin-confidence">How ready do you feel?</label>
+                  <select id="checkin-confidence">
+                    <option value="40">40 / 100</option>
+                    <option value="55">55 / 100</option>
+                    <option value="70" selected>70 / 100</option>
+                    <option value="85">85 / 100</option>
+                    <option value="95">95 / 100</option>
+                  </select>
+                  <label for="checkin-quiz">Short check result</label>
+                  <select id="checkin-quiz">
+                    <option value="35">35 / 100</option>
+                    <option value="50">50 / 100</option>
+                    <option value="65" selected>65 / 100</option>
+                    <option value="80">80 / 100</option>
+                    <option value="92">92 / 100</option>
+                  </select>
+                  <label for="checkin-minutes">Minutes studied</label>
+                  <input id="checkin-minutes" type="number" min="15" step="15" value="45" />
+                  <button type="submit" class="primary block">Save check</button>
+                </form>
+                <div id="checkin-result" class="stack"></div>
+              </article>
+            </div>
+
+            <article class="panel panel-wide">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Topic map</span>
+                  <h3>Lesson and topic readiness</h3>
+                </div>
+              </div>
+              <div id="weakness-map" class="stack panel-scroll medium-scroll"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-cram" class="page hidden">
+          <div class="page-heading">
+            <div>
+              <h2>Cram Mode</h2>
+              <p>Start a focused timer and build a short rescue plan for the time you have left.</p>
+            </div>
+          </div>
+
+          <details class="cram-help">
+            <summary>
+              <span class="help-icon">?</span>
+              <span>How cram mode works</span>
+            </summary>
+            <div class="cram-help-body">
+              <div class="summary-item">
+                <strong>Use one short timer.</strong>
+                <p>Pick a number of minutes you can finish without switching tasks.</p>
+              </div>
+              <div class="summary-item">
+                <strong>Do weak topics first.</strong>
+                <p>Use the rescue plan to hit high-yield gaps before polishing strong topics.</p>
+              </div>
+              <div class="summary-item">
+                <strong>Check yourself after the sprint.</strong>
+                <p>Go back to Study Room and save a readiness check when you finish.</p>
+              </div>
+            </div>
+          </details>
+
+          <div class="page-grid cram-grid">
+            <article class="panel timer-panel">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Timer</span>
+                  <h3>Focus timer</h3>
+                </div>
+              </div>
+              <div class="timer-shell">
+                <div class="timer-topline">
+                  <span class="micro-label">Session length</span>
+                  <span class="timer-hint">Tap the timer to edit</span>
+                </div>
+                <div class="timer-display-wrap">
+                  <button id="timer-minus" class="timer-adjust" type="button" aria-label="Reduce timer by 5 minutes">
+                    −5
+                  </button>
+                  <button
+                    id="timer-display"
+                    class="timer-display"
+                    type="button"
+                    aria-label="Edit session length"
+                    aria-expanded="false"
+                  >
+                    <span id="timer-display-text">25:00</span>
+                  </button>
+                  <button id="timer-plus" class="timer-adjust" type="button" aria-label="Increase timer by 5 minutes">
+                    +5
+                  </button>
+                </div>
+                <div id="timer-editor" class="timer-editor hidden">
+                  <label for="timer-minutes-input" class="timer-editor-label">Minutes</label>
+                  <input id="timer-minutes-input" type="number" min="1" step="1" value="25" inputmode="numeric" />
+                  <button id="timer-apply" class="timer-apply-button" type="button">Apply</button>
+                </div>
+              </div>
+              <p class="timer-note" id="timer-status">Ready to start.</p>
+              <div class="timer-actions">
+                <button id="timer-start" class="primary">Start</button>
+                <button id="timer-reset" class="timer-reset-button">Reset</button>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="micro-label">Rescue plan</span>
+                  <h3>Build a cram plan</h3>
+                </div>
+              </div>
+              <form id="panic-form" class="action-form compact-form">
+                <label for="panic-horizon">How much time is left?</label>
+                <div class="inline">
+                  <select id="panic-horizon">
+                    <option value="three_hours">3 hours</option>
+                    <option value="tonight" selected>Tonight only</option>
+                    <option value="weekend">Weekend</option>
+                  </select>
+                  <button type="submit" class="cram-build-button">Build</button>
+                </div>
+              </form>
+              <div id="panic-output" class="stack panel-scroll medium-scroll"></div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
     <script src="/static/app.js"></script>
   </body>
 </html>

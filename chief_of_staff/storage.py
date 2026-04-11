@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List
+from typing import Dict, Iterable, List
 
-from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig, UserProfile
+from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig, LocalLlmConfig, UserProfile
 
 
 class JsonStore:
@@ -16,6 +16,8 @@ class JsonStore:
         self.profile_path = self.root / "profile.json"
         self.calendar_source_path = self.root / "calendar_source.json"
         self.google_oauth_path = self.root / "google_oauth_client.json"
+        self.local_llm_config_path = self.root / "local_llm_config.json"
+        self.study_state_path = self.root / "study_state.json"
 
     def load_events(self) -> List[CalendarEvent]:
         if not self.events_path.exists():
@@ -50,6 +52,26 @@ class JsonStore:
             return GoogleOAuthConfig()
         raw = json.loads(self.google_oauth_path.read_text())
         return GoogleOAuthConfig(**raw)
+
+    def load_local_llm_config(self) -> LocalLlmConfig:
+        if self.local_llm_config_path.exists():
+            raw = json.loads(self.local_llm_config_path.read_text())
+            return LocalLlmConfig(**raw)
+
+        legacy_path = self.root / "ollama_config.json"
+        if legacy_path.exists():
+            raw = json.loads(legacy_path.read_text())
+            return LocalLlmConfig(provider="ollama", **raw)
+
+        return LocalLlmConfig()
+
+    def load_study_state(self) -> Dict[str, object]:
+        if not self.study_state_path.exists():
+            return {}
+        return json.loads(self.study_state_path.read_text())
+
+    def save_study_state(self, payload: Dict[str, object]) -> None:
+        self.study_state_path.write_text(json.dumps(payload, indent=2))
 
     @staticmethod
     def _event_from_dict(data: dict) -> CalendarEvent:

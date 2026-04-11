@@ -21,6 +21,22 @@ class CalendarAdapter(ABC):
     def create_event(self, title: str, start: datetime, end: datetime, location: str = "", notes: str = "") -> CalendarEvent:
         raise NotImplementedError
 
+    @abstractmethod
+    def update_event(
+        self,
+        event_id: str,
+        start: datetime,
+        end: datetime,
+        title: Optional[str] = None,
+        location: Optional[str] = None,
+        notes: Optional[str] = None,
+    ) -> CalendarEvent:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_event(self, event_id: str) -> None:
+        raise NotImplementedError
+
 
 class LocalCalendarAdapter(CalendarAdapter):
     def __init__(self, store: JsonStore) -> None:
@@ -44,6 +60,39 @@ class LocalCalendarAdapter(CalendarAdapter):
         events.append(event)
         self.store.save_events(events)
         return event
+
+    def update_event(
+        self,
+        event_id: str,
+        start: datetime,
+        end: datetime,
+        title: Optional[str] = None,
+        location: Optional[str] = None,
+        notes: Optional[str] = None,
+    ) -> CalendarEvent:
+        events = self.store.load_events()
+        for index, event in enumerate(events):
+            if event.id != event_id:
+                continue
+            event.start = start
+            event.end = end
+            if title is not None:
+                event.title = title
+            if location is not None:
+                event.location = location
+            if notes is not None:
+                event.notes = notes
+            events[index] = event
+            self.store.save_events(events)
+            return event
+        raise ValueError(f"Event {event_id} not found.")
+
+    def delete_event(self, event_id: str) -> None:
+        events = self.store.load_events()
+        remaining = [event for event in events if event.id != event_id]
+        if len(remaining) == len(events):
+            raise ValueError(f"Event {event_id} not found.")
+        self.store.save_events(remaining)
 
 
 class GoogleCalendarAdapter(CalendarAdapter):
@@ -121,6 +170,47 @@ class GoogleCalendarAdapter(CalendarAdapter):
             notes=raw.get("description", notes),
             source="google",
         )
+
+    def update_event(
+        self,
+        event_id: str,
+        start: datetime,
+        end: datetime,
+        title: Optional[str] = None,
+        location: Optional[str] = None,
+        notes: Optional[str] = None,
+    ) -> CalendarEvent:
+        self._ensure_access_token()
+        payload = {
+            "start": {"dateTime": start.isoformat()},
+            "end": {"dateTime": end.isoformat()},
+        }
+        if title is not None:
+            payload["summary"] = title
+        if location is not None:
+            payload["location"] = location
+        if notes is not None:
+            payload["description"] = notes
+        try:
+            raw = json_request("PATCH", f"{self.base_url}/events/{event_id}", headers=self._headers(), payload=payload)
+        except Exception as exc:
+            raise wrap_http_error(exc)
+        return CalendarEvent(
+            id=raw["id"],
+            title=raw.get("summary", title or "Untitled event"),
+            start=datetime.fromisoformat(raw["start"]["dateTime"].replace("Z", "+00:00")),
+            end=datetime.fromisoformat(raw["end"]["dateTime"].replace("Z", "+00:00")),
+            location=raw.get("location", location or ""),
+            notes=raw.get("description", notes or ""),
+            source="google",
+        )
+
+    def delete_event(self, event_id: str) -> None:
+        self._ensure_access_token()
+        try:
+            json_request("DELETE", f"{self.base_url}/events/{event_id}", headers=self._headers())
+        except Exception as exc:
+            raise wrap_http_error(exc)
 
     def _headers(self) -> dict:
         return {"Authorization": f"Bearer {self.access_token}"}

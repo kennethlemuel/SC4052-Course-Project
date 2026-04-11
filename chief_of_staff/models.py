@@ -63,6 +63,17 @@ class GoogleOAuthConfig:
 
 
 @dataclass
+class LocalLlmConfig:
+    provider: str = "ollama"
+    base_url: str = "http://127.0.0.1:11434"
+    model: str = "gemma3:4b"
+    api_key: str = ""
+
+    def is_configured(self) -> bool:
+        return bool(self.provider.strip() and self.base_url.strip() and self.model.strip())
+
+
+@dataclass
 class Suggestion:
     kind: str
     title: str
@@ -88,3 +99,41 @@ class TimeSlot:
             "score": self.score,
             "rationale": self.rationale,
         }
+
+
+@dataclass
+class StudyTopic:
+    id: str
+    name: str
+    module: str
+    mastery: int
+    confidence: int
+    importance: int
+    last_reviewed: str
+    notes: List[str] = field(default_factory=list)
+    quiz_average: int = 0
+    source_material_id: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class StudyProfile:
+    target_readiness: int = 82
+    default_study_minutes: int = 90
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class AcademicItem:
+    id: str
+    kind: str
+    title: str
+    subject: str
+    due_date: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
