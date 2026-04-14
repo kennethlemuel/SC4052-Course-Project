@@ -9,7 +9,7 @@ from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleO
 
 
 class JsonStore:
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, study_user_id: str = "") -> None:
         self.root = root
         self.root.mkdir(parents=True, exist_ok=True)
         self.events_path = self.root / "events.json"
@@ -17,7 +17,17 @@ class JsonStore:
         self.calendar_source_path = self.root / "calendar_source.json"
         self.google_oauth_path = self.root / "google_oauth_client.json"
         self.local_llm_config_path = self.root / "local_llm_config.json"
-        self.study_state_path = self.root / "study_state.json"
+        if study_user_id:
+            safe_user_id = "".join(char if char.isalnum() or char in {"-", "_"} else "-" for char in study_user_id)
+            user_root = self.root / "users" / safe_user_id
+            user_root.mkdir(parents=True, exist_ok=True)
+            self.study_state_path = user_root / "study_state.json"
+        else:
+            self.study_state_path = self.root / "study_state.json"
+        self.auth_state_path = self.root / "auth_state.json"
+
+    def for_study_user(self, user_id: str) -> "JsonStore":
+        return JsonStore(self.root, user_id)
 
     def load_events(self) -> List[CalendarEvent]:
         if not self.events_path.exists():
@@ -63,7 +73,7 @@ class JsonStore:
             raw = json.loads(legacy_path.read_text())
             return LocalLlmConfig(provider="ollama", **raw)
 
-        return LocalLlmConfig()
+        return LocalLlmConfig(provider="", base_url="", model="")
 
     def load_study_state(self) -> Dict[str, object]:
         if not self.study_state_path.exists():
@@ -72,6 +82,14 @@ class JsonStore:
 
     def save_study_state(self, payload: Dict[str, object]) -> None:
         self.study_state_path.write_text(json.dumps(payload, indent=2))
+
+    def load_auth_state(self) -> Dict[str, object]:
+        if not self.auth_state_path.exists():
+            return {}
+        return json.loads(self.auth_state_path.read_text())
+
+    def save_auth_state(self, payload: Dict[str, object]) -> None:
+        self.auth_state_path.write_text(json.dumps(payload, indent=2))
 
     @staticmethod
     def _event_from_dict(data: dict) -> CalendarEvent:

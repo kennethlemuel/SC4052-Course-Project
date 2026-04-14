@@ -68,6 +68,7 @@ class LocalLlmConfig:
     base_url: str = "http://127.0.0.1:11434"
     model: str = "gemma3:4b"
     api_key: str = ""
+    tavily_api_key: str = ""
 
     def is_configured(self) -> bool:
         return bool(self.provider.strip() and self.base_url.strip() and self.model.strip())
@@ -113,6 +114,7 @@ class StudyTopic:
     notes: List[str] = field(default_factory=list)
     quiz_average: int = 0
     source_material_id: str = ""
+    academic_item_id: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -134,6 +136,7 @@ class AcademicItem:
     title: str
     subject: str
     due_date: str
+    target_readiness: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

@@ -3,4 +3,7 @@ __pycache__/
 *.pyc
 
 data/*.json
+data/users/
 !data/.gitkeep
+report_extracted_review.txt
+FINAL_REPORT_DRAFT.md

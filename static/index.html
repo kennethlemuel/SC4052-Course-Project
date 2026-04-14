@@ -4,14 +4,122 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Study Buddy</title>
+    <link rel="icon" type="image/svg+xml" href="/static/study-buddy-icon.svg?v=6" />
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <div class="app-shell">
+    <section id="auth-screen" class="auth-screen" aria-labelledby="auth-title">
+      <div class="auth-card">
+        <img class="auth-logo" src="/static/study-buddy-icon.svg?v=6" alt="" width="72" height="72" />
+        <h1 id="auth-title">StudyBuddy</h1>
+        <p id="auth-subtitle">Log in to your revision workspace.</p>
+
+        <form id="login-form" class="auth-form">
+          <label for="login-identifier">Username or email</label>
+          <input id="login-identifier" type="text" autocomplete="username" value="kennethlemuel" />
+          <label for="login-password">Password</label>
+          <div class="password-field">
+            <input id="login-password" type="password" autocomplete="current-password" />
+            <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.2-5 9-5 9 5 9 5-3.2 5-9 5-9-5-9-5Z" />
+                <path d="M12 9.4a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z" />
+                <path class="password-eye-slash" d="M5 5 19 19" />
+              </svg>
+            </button>
+          </div>
+          <p id="login-error" class="error-copy hidden"></p>
+          <div class="auth-actions">
+            <button class="primary" type="submit">Login</button>
+            <button id="show-register" class="modal-cancel-button" type="button">Register</button>
+          </div>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+          <label for="register-email">Email</label>
+          <input id="register-email" type="email" autocomplete="email" />
+          <label for="register-username">Username</label>
+          <input id="register-username" type="text" autocomplete="username" />
+          <label for="register-password">Password</label>
+          <div class="password-field">
+            <input id="register-password" type="password" autocomplete="new-password" />
+            <button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.2-5 9-5 9 5 9 5-3.2 5-9 5-9-5-9-5Z" />
+                <path d="M12 9.4a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z" />
+                <path class="password-eye-slash" d="M5 5 19 19" />
+              </svg>
+            </button>
+          </div>
+          <label for="register-password-confirm">Re-enter password</label>
+          <div class="password-field">
+            <input id="register-password-confirm" type="password" autocomplete="new-password" />
+            <button class="password-toggle" type="button" data-password-toggle="register-password-confirm" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.2-5 9-5 9 5 9 5-3.2 5-9 5-9-5-9-5Z" />
+                <path d="M12 9.4a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z" />
+                <path class="password-eye-slash" d="M5 5 19 19" />
+              </svg>
+            </button>
+          </div>
+          <p id="register-error" class="error-copy hidden"></p>
+          <div class="auth-actions">
+            <button class="primary" type="submit">Register</button>
+            <button id="show-login" class="modal-cancel-button" type="button">Login</button>
+          </div>
+        </form>
+
+        <form id="reset-password-form" class="auth-form hidden">
+          <label for="reset-password">New password</label>
+          <div class="password-field">
+            <input id="reset-password" type="password" autocomplete="new-password" />
+            <button class="password-toggle" type="button" data-password-toggle="reset-password" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.2-5 9-5 9 5 9 5-3.2 5-9 5-9-5-9-5Z" />
+                <path d="M12 9.4a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z" />
+                <path class="password-eye-slash" d="M5 5 19 19" />
+              </svg>
+            </button>
+          </div>
+          <label for="reset-password-confirm">Re-enter new password</label>
+          <div class="password-field">
+            <input id="reset-password-confirm" type="password" autocomplete="new-password" />
+            <button class="password-toggle" type="button" data-password-toggle="reset-password-confirm" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12s3.2-5 9-5 9 5 9 5-3.2 5-9 5-9-5-9-5Z" />
+                <path d="M12 9.4a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z" />
+                <path class="password-eye-slash" d="M5 5 19 19" />
+              </svg>
+            </button>
+          </div>
+          <p id="reset-password-error" class="error-copy hidden"></p>
+          <div class="auth-actions">
+            <button class="primary" type="submit">Reset password</button>
+            <button id="reset-back-login" class="modal-cancel-button" type="button">Login</button>
+          </div>
+        </form>
+
+        <button id="forgot-password-link" class="auth-link" type="button">Forgot password?</button>
+        <p id="forgot-password-status" class="auth-small-text"></p>
+      </div>
+    </section>
+
+    <section id="welcome-screen" class="welcome-screen hidden" aria-live="polite">
+      <div class="welcome-copy">
+        <img class="auth-logo" src="/static/study-buddy-icon.svg?v=6" alt="" width="68" height="68" />
+        <p id="welcome-prefix">Welcome back,</p>
+        <h1 id="welcome-text"></h1>
+      </div>
+    </section>
+
+    <div id="app-shell" class="app-shell hidden">
       <header class="topbar">
         <div class="brand-block">
           <p class="brand-kicker">Focused revision workspace</p>
-          <h1>Study Buddy</h1>
+          <div class="brand-title-row">
+            <img class="brand-logo" src="/static/study-buddy-icon.svg?v=6" alt="" width="56" height="56" />
+            <h1>Study Buddy</h1>
+          </div>
           <p class="brand-note">
             Save your notes, revise by topic, and keep track of how ready you are.
           </p>
@@ -50,12 +158,16 @@
           <button class="section-tab" data-page="materials">Materials</button>
           <button class="section-tab" data-page="study">Study Room</button>
           <button class="section-tab" data-page="cram">Cram Mode</button>
+          <div class="logout-cluster">
+            <button id="logout-toggle" class="logout-power-button" type="button" aria-label="Open logout menu" aria-expanded="false">
+              <span aria-hidden="true"></span>
+            </button>
+            <button id="logout-button" class="logout-button" type="button">Log Out</button>
+          </div>
         </nav>
 
         <div class="toolbar-actions">
-          <button id="refresh-btn" class="secondary">Refresh</button>
-          <button id="tonight-btn" class="primary">Plan tonight</button>
-          <button id="panic-btn" class="warning">Open cram mode</button>
+          <button id="target-score-btn" class="primary">Change Target Score</button>
         </div>
       </section>
 
@@ -64,7 +176,7 @@
           <div class="page-heading">
             <div>
               <h2>Overview</h2>
-              <p>See your focus, weak topics, and upcoming work at a glance.</p>
+              <p>See your focus, topics, and upcoming work at a glance.</p>
             </div>
             <div class="confidence-box">
               <span class="micro-label">Confidence gap</span>
@@ -78,18 +190,18 @@
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Plan</span>
-                  <h3>Tonight</h3>
+                  <h3 id="overview-plan-title">Tonight</h3>
                 </div>
-                <span class="quiet-pill">Fast</span>
+                <span id="overview-plan-pace" class="quiet-pill">Fast</span>
               </div>
-              <div id="overview-plan" class="stack"></div>
+              <div id="overview-plan" class="stack panel-scroll medium-scroll"></div>
             </article>
 
             <article class="panel">
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Topics</span>
-                  <h3>Weak topics</h3>
+                  <h3 id="overview-weakness-title">Topics</h3>
                 </div>
               </div>
               <div id="overview-weakness" class="stack panel-scroll medium-scroll"></div>
@@ -99,7 +211,7 @@
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Upcoming</span>
-                  <h3>Exams and assignments</h3>
+                  <h3>Exams and Assignments</h3>
                 </div>
               </div>
               <form id="academic-form" class="action-form compact-form">
@@ -138,12 +250,12 @@
           <div class="page-heading">
             <div>
               <h2>Materials</h2>
-              <p>Keep your notes and turn them into study topics and practice prompts.</p>
+              <p>Keep your notes grouped by exam, assignment, or quiz.</p>
             </div>
           </div>
 
           <div class="page-grid materials-grid">
-            <article class="panel">
+            <article class="panel materials-upload">
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Upload</span>
@@ -153,6 +265,8 @@
               <form id="materials-form" class="action-form">
                 <label for="materials-title">Material title</label>
                 <input id="materials-title" type="text" placeholder="Week 9 lecture notes" />
+                <label for="materials-item">For exam, assignment, or quiz</label>
+                <select id="materials-item"></select>
                 <label for="materials-file">Upload a file</label>
                 <div class="file-picker">
                   <label for="materials-file" class="file-trigger">Choose file</label>
@@ -177,25 +291,17 @@
               </form>
             </article>
 
-            <article class="panel">
-              <div class="panel-head">
-                <div>
-                  <span class="micro-label">Library</span>
-                  <h3>Your materials</h3>
+            <div class="materials-side">
+              <article class="panel materials-library">
+                <div class="panel-head">
+                  <div>
+                    <span class="micro-label">Library</span>
+                    <h3>Your materials</h3>
+                  </div>
                 </div>
-              </div>
-              <div id="materials-output" class="stack panel-scroll tall-scroll"></div>
-            </article>
-
-            <article class="panel panel-wide">
-              <div class="panel-head">
-                <div>
-                  <span class="micro-label">Practice</span>
-                  <h3>Prompts from your notes</h3>
-                </div>
-              </div>
-              <div id="recall-deck" class="stack panel-scroll short-scroll"></div>
-            </article>
+                <div id="materials-output" class="stack panel-scroll tall-scroll"></div>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -214,86 +320,60 @@
                   <span class="micro-label">Coach</span>
                   <h3>Ask what to study</h3>
                 </div>
+                <div class="coach-memory-count" id="coach-memory-count">0 remembered</div>
+              </div>
+              <div class="coach-tabs-bar" aria-label="Coach chats">
+                <div id="coach-tabs" class="coach-tabs" role="tablist"></div>
+                <button id="coach-tab-new" type="button" class="ghost coach-tab-new">New chat</button>
               </div>
               <div id="chat-log" class="chat-log panel-scroll chat-scroll"></div>
               <form id="chat-form" class="chat-form">
-                <textarea
-                  id="chat-input"
-                  rows="3"
-                  placeholder="What should I study tonight? Which lesson am I weak at? What should I revise before the exam?"
-                ></textarea>
-                <div class="form-actions">
-                  <button type="submit" class="primary">Ask coach</button>
+                <div class="chat-composer">
+                  <textarea
+                    id="chat-input"
+                    rows="1"
+                    placeholder="What should I study tonight? Which lesson am I weak at? What should I revise before the exam?"
+                  ></textarea>
+                  <button type="submit" class="primary chat-submit">Ask</button>
                 </div>
               </form>
             </article>
 
             <div class="study-side">
-              <article class="panel">
+              <article class="panel quick-plan-panel">
                 <div class="panel-head">
                   <div>
                     <span class="micro-label">Quick plan</span>
-                    <h3>Tonight</h3>
+                    <h3 id="study-plan-title">Tonight</h3>
                   </div>
                 </div>
-                <form id="plan-form" class="action-form compact-form">
-                  <label for="plan-minutes">Time available</label>
-                  <div class="inline">
-                    <select id="plan-minutes">
-                      <option value="45">45 minutes</option>
-                      <option value="90" selected>90 minutes</option>
-                      <option value="120">2 hours</option>
-                      <option value="180">3 hours</option>
-                    </select>
-                    <button type="submit" class="secondary">Build</button>
+                <form id="plan-form" class="action-form compact-form plan-builder-form">
+                  <div class="plan-builder-top">
+                    <div class="field-block">
+                      <label id="plan-minutes-label" for="plan-minutes">Minutes available tonight</label>
+                      <input id="plan-minutes" type="number" min="15" max="720" step="5" value="90" inputmode="numeric" />
+                    </div>
+                    <button type="submit" class="cram-build-button plan-build-button">Build</button>
                   </div>
+                  <fieldset class="plan-materials-field">
+                    <legend>Lectures to focus on</legend>
+                    <p class="helper-copy">Leave blank to include every lecture for this focus.</p>
+                    <div id="plan-material-options" class="plan-material-options"></div>
+                  </fieldset>
                 </form>
-                <div id="plan-output" class="stack panel-scroll short-scroll"></div>
+                <div id="plan-output" class="stack panel-scroll study-plan-scroll"></div>
               </article>
 
-              <article class="panel">
+              <article class="panel topic-map-panel">
                 <div class="panel-head">
                   <div>
-                    <span class="micro-label">After study</span>
-                    <h3>Readiness check</h3>
+                    <span class="micro-label">Topic map</span>
+                    <h3>Lesson and topic readiness</h3>
                   </div>
                 </div>
-                <form id="checkin-form" class="action-form compact-form">
-                  <label for="checkin-topic">Topic</label>
-                  <select id="checkin-topic"></select>
-                  <label for="checkin-confidence">How ready do you feel?</label>
-                  <select id="checkin-confidence">
-                    <option value="40">40 / 100</option>
-                    <option value="55">55 / 100</option>
-                    <option value="70" selected>70 / 100</option>
-                    <option value="85">85 / 100</option>
-                    <option value="95">95 / 100</option>
-                  </select>
-                  <label for="checkin-quiz">Short check result</label>
-                  <select id="checkin-quiz">
-                    <option value="35">35 / 100</option>
-                    <option value="50">50 / 100</option>
-                    <option value="65" selected>65 / 100</option>
-                    <option value="80">80 / 100</option>
-                    <option value="92">92 / 100</option>
-                  </select>
-                  <label for="checkin-minutes">Minutes studied</label>
-                  <input id="checkin-minutes" type="number" min="15" step="15" value="45" />
-                  <button type="submit" class="primary block">Save check</button>
-                </form>
-                <div id="checkin-result" class="stack"></div>
+                <div id="weakness-map" class="stack panel-scroll topic-map-scroll"></div>
               </article>
             </div>
-
-            <article class="panel panel-wide">
-              <div class="panel-head">
-                <div>
-                  <span class="micro-label">Topic map</span>
-                  <h3>Lesson and topic readiness</h3>
-                </div>
-              </div>
-              <div id="weakness-map" class="stack panel-scroll medium-scroll"></div>
-            </article>
           </div>
         </section>
 
@@ -327,7 +407,8 @@
           </details>
 
           <div class="page-grid cram-grid">
-            <article class="panel timer-panel">
+            <div class="cram-stack">
+              <article class="panel timer-panel">
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Timer</span>
@@ -367,17 +448,129 @@
                 <button id="timer-start" class="primary">Start</button>
                 <button id="timer-reset" class="timer-reset-button">Reset</button>
               </div>
-            </article>
+              </article>
 
-            <article class="panel">
+              <article class="panel music-panel">
+                <div class="panel-head">
+                  <div>
+                    <span class="micro-label">Focus sound</span>
+                    <h3>Study audio</h3>
+                  </div>
+                  <div class="music-head-controls">
+                    <div class="music-tabs" role="tablist" aria-label="Study audio source">
+                      <button
+                        id="music-tab-site"
+                        class="music-tab active"
+                        type="button"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="music-site-panel"
+                        data-music-tab="site"
+                      >
+                        Sounds
+                      </button>
+                      <button
+                        id="music-tab-spotify"
+                        class="music-tab"
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="music-spotify-panel"
+                        data-music-tab="spotify"
+                      >
+                        Spotify
+                      </button>
+                    </div>
+                    <div class="music-volume-compact">
+                      <label for="music-volume">Vol</label>
+                      <input id="music-volume" class="music-volume" type="range" min="0" max="100" value="35" />
+                      <span id="music-volume-value">35%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="music-site-panel" class="music-source-panel" role="tabpanel" data-music-panel="site">
+                  <div class="music-inline-control">
+                    <label for="focus-sound">Noise</label>
+                    <select id="focus-sound">
+                      <option value="white">White noise</option>
+                      <option value="rain">Rain noise</option>
+                      <option value="brown">Brown noise</option>
+                    </select>
+                    <button id="music-play" class="primary" type="button">Start</button>
+                  </div>
+                  <p id="music-status" class="timer-note">Choose a sound before your sprint.</p>
+                </div>
+
+                <div id="music-spotify-panel" class="music-source-panel hidden" role="tabpanel" data-music-panel="spotify">
+                  <div class="spotify-status-card">
+                    <span id="spotify-art" class="spotify-now-art" aria-hidden="true"></span>
+                    <div class="spotify-now-body">
+                      <strong id="spotify-account">Spotify not connected</strong>
+                      <span id="spotify-status">Spotify Premium is required for browser playback.</span>
+                      <div class="spotify-progress-track" aria-label="Spotify playback progress">
+                        <span id="spotify-progress" class="spotify-progress-fill"></span>
+                      </div>
+                      <span id="spotify-progress-time" class="spotify-progress-time">0:00 / 0:00</span>
+                    </div>
+                  </div>
+                  <div class="spotify-actions">
+                    <button id="spotify-connect" class="spotify-connect-button" type="button">Connect Spotify</button>
+                    <div class="spotify-player-controls" aria-label="Spotify playback controls">
+                      <button id="spotify-shuffle" class="spotify-control-button spotify-control-small" type="button" aria-label="Enable shuffle" aria-pressed="false" title="Enable shuffle" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 7h3.5c2.1 0 3.1 1.1 4.4 3.3l.2.4" />
+                          <path d="M16 5h4v4" />
+                          <path d="M14.5 8.5 20 5" />
+                          <path d="M4 17h3.5c2.1 0 3.1-1.1 4.4-3.3l1.1-1.9C14.2 9.7 15.3 7 18 7h2" />
+                          <path d="M16 15h4v4" />
+                          <path d="m14.5 15.5 5.5 3.5" />
+                        </svg>
+                      </button>
+                      <button id="spotify-prev" class="spotify-control-button spotify-control-small" type="button" aria-label="Previous track" title="Previous track" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M6 5v14" />
+                          <path d="m18 5-9 7 9 7V5Z" />
+                        </svg>
+                      </button>
+                      <button id="spotify-pause" class="spotify-control-button spotify-control-main" type="button" aria-label="Play" title="Play" disabled>
+                        <svg class="spotify-icon-play" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m9 6 9 6-9 6V6Z" />
+                        </svg>
+                        <svg class="spotify-icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M8 6h3v12H8z" />
+                          <path d="M13 6h3v12h-3z" />
+                        </svg>
+                      </button>
+                      <button id="spotify-next" class="spotify-control-button spotify-control-small" type="button" aria-label="Next track" title="Next track" disabled>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M18 5v14" />
+                          <path d="m6 5 9 7-9 7V5Z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <button id="spotify-disconnect" class="timer-reset-button" type="button" disabled>Disconnect</button>
+                  </div>
+                  <div class="spotify-explorer" aria-label="Spotify browser">
+                    <div class="spotify-search-row">
+                      <input id="spotify-search" type="search" placeholder="Search tracks or playlists" autocomplete="off" />
+                      <button id="spotify-search-button" class="timer-reset-button" type="button">Search</button>
+                    </div>
+                    <div id="spotify-results" class="spotify-results" aria-live="polite"></div>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <article class="panel rescue-plan-panel">
               <div class="panel-head">
                 <div>
                   <span class="micro-label">Rescue plan</span>
-                  <h3>Build a cram plan</h3>
+                  <h3 id="cram-plan-title">Build a cram plan</h3>
                 </div>
               </div>
               <form id="panic-form" class="action-form compact-form">
-                <label for="panic-horizon">How much time is left?</label>
+                <label id="panic-horizon-label" for="panic-horizon">How much time is left?</label>
                 <div class="inline">
                   <select id="panic-horizon">
                     <option value="three_hours">3 hours</option>
@@ -393,6 +586,93 @@
         </section>
       </main>
     </div>
+    <div id="modal-backdrop" class="modal-backdrop hidden"></div>
+
+    <section
+      id="target-score-modal"
+      class="edit-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="target-score-heading"
+    >
+      <form id="target-score-form" class="modal-form">
+        <div class="modal-head">
+          <div>
+            <span class="micro-label">Target</span>
+            <h2 id="target-score-heading">Change target score</h2>
+          </div>
+          <button id="target-score-close" class="modal-close-button" type="button">Close</button>
+        </div>
+        <p id="target-score-focus" class="muted">Current focus</p>
+        <label for="target-score-input">Target readiness</label>
+        <input id="target-score-input" type="number" min="0" max="100" step="1" value="0" inputmode="numeric" />
+        <p id="target-score-error" class="error-copy hidden"></p>
+        <div class="modal-actions">
+          <button id="target-score-cancel" class="secondary modal-cancel-button" type="button">Cancel</button>
+          <button class="primary" type="submit">Save target</button>
+        </div>
+      </form>
+    </section>
+
+    <section
+      id="academic-edit-modal"
+      class="edit-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="academic-edit-heading"
+    >
+      <form id="academic-edit-form" class="modal-form">
+        <div class="modal-head">
+          <div>
+            <span class="micro-label">Edit item</span>
+            <h2 id="academic-edit-heading">Exam, assignment, or quiz</h2>
+          </div>
+          <button id="academic-edit-close" class="modal-close-button" type="button">Close</button>
+        </div>
+        <label for="academic-edit-title">Title</label>
+        <input id="academic-edit-title" type="text" />
+        <label for="academic-edit-subject">Subject</label>
+        <input id="academic-edit-subject" type="text" />
+        <label for="academic-edit-kind">Type</label>
+        <select id="academic-edit-kind">
+          <option value="exam">Exam</option>
+          <option value="assignment">Assignment</option>
+          <option value="quiz">Quiz</option>
+        </select>
+        <label for="academic-edit-date">Due date</label>
+        <input id="academic-edit-date" type="date" />
+        <p id="academic-edit-error" class="error-copy hidden"></p>
+        <div class="modal-actions">
+          <button id="academic-edit-cancel" class="secondary modal-cancel-button" type="button">Cancel</button>
+          <button class="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </section>
+
+    <section
+      id="material-edit-modal"
+      class="edit-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="material-edit-heading"
+    >
+      <form id="material-edit-form" class="modal-form">
+        <div class="modal-head">
+          <div>
+            <span class="micro-label">Edit material</span>
+            <h2 id="material-edit-heading">Lecture title</h2>
+          </div>
+          <button id="material-edit-close" class="modal-close-button" type="button">Close</button>
+        </div>
+        <label for="material-edit-title">Title</label>
+        <input id="material-edit-title" type="text" />
+        <p id="material-edit-error" class="error-copy hidden"></p>
+        <div class="modal-actions">
+          <button id="material-edit-cancel" class="secondary modal-cancel-button" type="button">Cancel</button>
+          <button class="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </section>
     <script src="/static/app.js"></script>
   </body>
 </html>
