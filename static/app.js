@@ -62,7 +62,6 @@ const academicList = document.querySelector("#academic-list");
 const overviewPlan = document.querySelector("#overview-plan");
 const overviewWeakness = document.querySelector("#overview-weakness");
 const weaknessMap = document.querySelector("#weakness-map");
-const planOutput = document.querySelector("#plan-output");
 const panicOutput = document.querySelector("#panic-output");
 const recallDeck = document.querySelector("#recall-deck");
 const checkinTopic = document.querySelector("#checkin-topic");
@@ -864,7 +863,6 @@ function syncOverviewPlanPace(pace) {
 }
 
 function applyPlanPayload(payload, minutes = planMinutesValue()) {
-  renderStack(planOutput, payload.plan, planCard, "No plan yet.");
   renderStack(overviewPlan, payload.plan, planCard, "No plan yet.");
   syncOverviewPlanPace(payload.pace);
   if (currentDashboard) {
@@ -897,6 +895,22 @@ function simpleCard(title, detail, extra = "") {
   const node = document.createElement("div");
   node.className = "card";
   node.innerHTML = `<strong>${title}</strong><div>${detail}</div>${extra ? `<div class="muted">${extra}</div>` : ""}`;
+  return node;
+}
+
+function cramGoalCard(data) {
+  const node = document.createElement("div");
+  node.className = "card cram-goal-card";
+  node.innerHTML = `
+    <div class="cram-goal-label">Goal</div>
+    <strong>${escapeHtml(data.headline)}</strong>
+    <div>${escapeHtml(data.triage_note)}</div>
+    ${
+      data.skip.length
+        ? `<div class="cram-goal-skip">Ignore for now: ${escapeHtml(data.skip.join(", "))}</div>`
+        : ""
+    }
+  `;
   return node;
 }
 
@@ -967,13 +981,7 @@ function renderMetrics(metrics) {
 
 function renderPanic(data) {
   panicOutput.innerHTML = "";
-  panicOutput.appendChild(
-    simpleCard(
-      data.headline,
-      data.triage_note,
-      data.skip.length ? `Ignore for now: ${data.skip.join(", ")}` : ""
-    )
-  );
+  panicOutput.appendChild(cramGoalCard(data));
   data.must_cover.forEach((item, index) => {
     const node = simpleCard(`${item.order}. ${item.title}`, `${item.minutes} min`, item.reason);
     node.classList.add("stagger-in");
@@ -1171,7 +1179,6 @@ function renderDashboard(data) {
   syncOverviewPlanPace(data.plan_meta?.pace);
   renderWeaknessMap(overviewWeakness, data.weakness_map);
   renderWeaknessMap(weaknessMap, data.weakness_map);
-  renderStack(planOutput, data.plan, planCard, "No plan yet.");
   renderPanic(data.panic_mode);
   if (recallDeck) {
     renderStack(recallDeck, data.recall_deck, recallCard, "No practice prompts yet.");

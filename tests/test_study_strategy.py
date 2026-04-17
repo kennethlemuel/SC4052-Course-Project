@@ -25,12 +25,14 @@ class StudyStrategyServiceTests(unittest.TestCase):
         self.assertIn("focus_item", dashboard)
         self.assertGreater(len(dashboard["academic_items"]), 0)
 
-    def test_seeded_auth_account_can_login_and_logout(self):
+    def test_registered_auth_account_can_login_and_logout(self):
         auth = AuthService(JsonStore(self.temp_dir))
 
-        result = auth.login("kennethlemuel", "1234567890!")
+        registered = auth.register("student@example.com", "student", "1234567890!", "1234567890!")
+        result = auth.login("student", "1234567890!")
 
-        self.assertEqual(result["user"]["email"], "kennethlemuel05@gmail.com")
+        self.assertEqual(registered["user"]["email"], "student@example.com")
+        self.assertEqual(result["user"]["email"], "student@example.com")
         self.assertTrue(auth.status(result["session_token"])["authenticated"])
         self.assertFalse(auth.logout(result["session_token"])["authenticated"])
         self.assertFalse(auth.status(result["session_token"])["authenticated"])
@@ -50,15 +52,15 @@ class StudyStrategyServiceTests(unittest.TestCase):
         self.assertEqual(auth.login("newstudent", "newpassword123!")["user"]["email"], "new@example.com")
 
     def test_study_state_can_be_scoped_by_user(self):
-        kenneth_service = StudyStrategyService(JsonStore(self.temp_dir).for_study_user("user-kennethlemuel"))
+        primary_service = StudyStrategyService(JsonStore(self.temp_dir).for_study_user("user-primary"))
         other_service = StudyStrategyService(JsonStore(self.temp_dir).for_study_user("user-other"), seed_demo=False)
 
-        kenneth_service.import_material(
-            "Kenneth Notes",
+        primary_service.import_material(
+            "Student Notes",
             "Data Volume\nLarge datasets need careful storage",
         )
 
-        self.assertGreater(len(kenneth_service.get_dashboard()["materials"]), 0)
+        self.assertGreater(len(primary_service.get_dashboard()["materials"]), 0)
         self.assertEqual(other_service.get_dashboard()["materials"], [])
         self.assertEqual(other_service.get_dashboard()["academic_items"], [])
 
@@ -102,6 +104,13 @@ class StudyStrategyServiceTests(unittest.TestCase):
         )
         self.assertGreaterEqual(len(result["created_topics"]), 2)
         self.assertEqual(len(result["dashboard"]["materials"]), 1)
+        material_topic_ids = set(result["dashboard"]["materials"][0]["topic_ids"])
+        state = self.service._ensure_state()
+        imported_topics = [topic for topic in state["topics"] if topic["id"] in material_topic_ids]
+        self.assertTrue(imported_topics)
+        self.assertTrue(all(topic["mastery"] == 0 for topic in imported_topics))
+        self.assertTrue(all(topic["confidence"] == 0 for topic in imported_topics))
+        self.assertTrue(all(topic["quiz_average"] == 0 for topic in imported_topics))
 
     def test_delete_material_removes_derived_topics_and_material_entry(self):
         result = self.service.import_material(
@@ -319,6 +328,30 @@ class StudyStrategyServiceTests(unittest.TestCase):
         self.assertIn("focus on Lecture 2 Data Models first", reply["reply"])
         self.assertIn("No quiz evidence yet", reply["reply"])
 
+    def test_coach_marks_equal_untested_lecture_priority_as_provisional(self):
+        service = StudyStrategyService(JsonStore(self.temp_dir / "fresh"), seed_demo=False)
+        item = service.add_academic_item("SC4023 Final Exam", "SC4023", "2026-05-03", "exam")["item"]
+        service.import_material(
+            "Lecture 1 Big Data",
+            "Data Volume\nLarge datasets need distributed storage\nData Velocity\nStreams arrive quickly",
+            item["id"],
+        )
+        service.import_material(
+            "Lecture 2 Data Models",
+            "Relational Data Model\nTables and primary keys\nGraph Data Model\nNodes and edges",
+            item["id"],
+        )
+        service.import_material(
+            "Lecture 3 Memory Hierarchy",
+            "Cache Miss Cost Calculation\nAverage access time depends on hit time and miss penalty",
+            item["id"],
+        )
+
+        reply = service.coach_reply("Which lecture needs most focusing on?")
+
+        self.assertIn("order is provisional", reply["reply"])
+        self.assertIn("After one quiz", reply["reply"])
+
     def test_coach_can_quiz_an_entire_lecture_scope(self):
         self.service.import_material(
             "Lecture 2 Data Models",
@@ -455,7 +488,7 @@ class StudyStrategyServiceTests(unittest.TestCase):
         self.assertEqual(grade["score"], 100)
         self.assertIn("did not penalize answer length", grade["feedback"])
 
-    def test_mcq_has_smaller_readiness_impact_than_written_answer(self):
+    def test_correct_quiz_answers_get_double_readiness_gain_below_50(self):
         base_state = self.service._ensure_state()
         topic_id = base_state["topics"][0]["id"]
 
@@ -483,10 +516,23 @@ class StudyStrategyServiceTests(unittest.TestCase):
         self.service._apply_quiz_score(wrong_state, topic_id, 0, "Short answer")
         wrong_mastery = next(topic["mastery"] for topic in wrong_state["topics"] if topic["id"] == topic_id)
 
-        self.assertEqual(mcq_mastery, 43)
-        self.assertEqual(written_mastery, 45)
+        self.assertEqual(mcq_mastery, 46)
+        self.assertEqual(written_mastery, 50)
         self.assertEqual(wrong_mastery, 38)
         self.assertLess(mcq_mastery, written_mastery)
+
+    def test_correct_quiz_answers_use_normal_gain_at_50_or_above(self):
+        state = self.service._ensure_state()
+        topic_id = state["topics"][0]["id"]
+        for topic in state["topics"]:
+            if topic["id"] == topic_id:
+                topic["mastery"] = 50
+                topic["confidence"] = 50
+
+        self.service._apply_quiz_score(state, topic_id, 100, "MCQ")
+
+        mastery = next(topic["mastery"] for topic in state["topics"] if topic["id"] == topic_id)
+        self.assertEqual(mastery, 53)
 
     def test_spotify_login_tracks_pending_auth_without_marking_connected(self):
         (self.temp_dir / "spotify_config.json").write_text(

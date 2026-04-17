@@ -12,18 +12,9 @@ from typing import Dict, Optional
 from chief_of_staff.storage import JsonStore
 
 
-SEEDED_USER = {
-    "id": "user-kennethlemuel",
-    "username": "kennethlemuel",
-    "email": "kennethlemuel05@gmail.com",
-    "password_hash": "pbkdf2_sha256$120000$c3R1ZHlidWRkeS1rZW5uZXRobGVtdWVsLXYx$yfqktecMnvaRaKG_AQPozNyrIJSq36xdX4lAtIi1GkA",
-}
-
-
 class AuthService:
     def __init__(self, store: JsonStore) -> None:
         self.store = store
-        self._ensure_seed_user()
 
     def status(self, token: str = "") -> Dict[str, object]:
         user = self.user_for_token(token)
@@ -150,15 +141,6 @@ class AuthService:
             if user.get("id") == user_id:
                 return user
         return None
-
-    def _ensure_seed_user(self) -> None:
-        state = self._state()
-        users = state.setdefault("users", [])
-        if not any(str(user.get("username", "")).lower() == SEEDED_USER["username"] for user in users):
-            seeded = dict(SEEDED_USER)
-            seeded["created_at"] = self._now()
-            users.append(seeded)
-            self._save_state(state)
 
     def _find_user(self, identifier: str) -> Optional[Dict[str, object]]:
         identifier = identifier.strip().lower()

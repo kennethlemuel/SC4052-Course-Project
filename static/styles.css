@@ -648,9 +648,38 @@ button:hover {
   align-content: start;
 }
 
+.cram-goal-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 15px;
+  background: linear-gradient(180deg, rgba(232, 238, 255, 0.96), rgba(246, 248, 255, 0.92));
+  border: 1px solid rgba(43, 92, 255, 0.28);
+  border-left: 5px solid var(--blue);
+  border-radius: 8px;
+}
+
+.cram-goal-label {
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(43, 92, 255, 0.1);
+  color: var(--blue);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cram-goal-card strong {
+  font-size: 1rem;
+}
+
+.cram-goal-skip {
+  color: var(--muted);
+}
+
 .study-side {
   display: grid;
-  grid-template-rows: minmax(260px, 0.78fr) minmax(320px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 14px;
   align-content: stretch;
   height: 100%;
@@ -802,7 +831,7 @@ button:hover {
 }
 
 .quick-plan-panel {
-  height: 100%;
+  height: auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -815,13 +844,6 @@ button:hover {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.study-plan-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  align-content: start;
 }
 
 .topic-map-scroll {
@@ -2289,7 +2311,6 @@ label {
     overflow: visible;
   }
 
-  .quick-plan-panel,
   .topic-map-panel {
     min-height: 360px;
   }

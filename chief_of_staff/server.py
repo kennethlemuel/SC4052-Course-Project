@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urlparse
 
 from pypdf import PdfReader
 
-from chief_of_staff.services.auth_service import AuthService, SEEDED_USER
+from chief_of_staff.services.auth_service import AuthService
 from chief_of_staff.services.spotify_service import SpotifyService
 from chief_of_staff.services.study_strategy_service import StudyStrategyService
 from chief_of_staff.storage import JsonStore
@@ -33,22 +33,14 @@ class AppContext:
         self.store = JsonStore(DATA_ROOT)
         self.auth_service = AuthService(self.store)
         self.study_services: dict[str, StudyStrategyService] = {}
-        self._migrate_seeded_user_state()
         self.spotify_service = SpotifyService(DATA_ROOT)
 
     def study_service_for_user(self, user_id: str) -> StudyStrategyService:
         if user_id not in self.study_services:
             self.study_services[user_id] = StudyStrategyService(
                 self.store.for_study_user(user_id),
-                seed_demo=user_id == SEEDED_USER["id"],
             )
         return self.study_services[user_id]
-
-    def _migrate_seeded_user_state(self) -> None:
-        legacy_path = self.store.study_state_path
-        seeded_store = self.store.for_study_user(SEEDED_USER["id"])
-        if legacy_path.exists() and not seeded_store.study_state_path.exists():
-            seeded_store.save_study_state(self.store.load_study_state())
 
 
 CONTEXT = AppContext()
@@ -635,7 +627,6 @@ class StudyStrategyHandler(BaseHTTPRequestHandler):
 
 
 def run_server(host: str = "127.0.0.1", port: int = 8000) -> None:
-    CONTEXT.study_service_for_user(SEEDED_USER["id"]).get_dashboard()
     server = ThreadingHTTPServer((host, port), StudyStrategyHandler)
     print(f"Study Strategy Service running on http://{host}:{port}")
     try:

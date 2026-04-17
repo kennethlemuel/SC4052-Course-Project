@@ -378,8 +378,8 @@ class StudyStrategyService:
                 id=f"topic-{uuid.uuid4().hex[:8]}",
                 name=topic_payload["name"],
                 module=title,
-                mastery=topic_payload["mastery"],
-                confidence=topic_payload["confidence"],
+                mastery=0,
+                confidence=0,
                 importance=topic_payload["importance"],
                 last_reviewed="Not reviewed yet",
                 notes=topic_payload["notes"][:5],
@@ -837,6 +837,64 @@ class StudyStrategyService:
         evidence_risk = average_confidence_gap + round(untested_ratio * 22)
         return round((average_risk * 0.45) + (evidence_risk * 0.4) + (highest_risk * 0.15))
 
+    def _provisional_material_priority_note(
+        self,
+        state: Dict[str, object],
+        focus_item: Dict[str, object],
+        selected_material: Dict[str, object],
+    ) -> str:
+        materials = self._materials_for_focus(state, focus_item)
+        summaries = []
+        for material in materials:
+            topics = self._topics_for_material(state, focus_item, material)
+            if not topics:
+                continue
+            summaries.append(
+                {
+                    "material": material,
+                    "topic_count": len(topics),
+                    "confidence": round(sum(topic.confidence for topic in topics) / len(topics)),
+                    "importance": sum(topic.importance for topic in topics) / len(topics),
+                    "score": self._material_focus_score(state, focus_item, material),
+                    "untested": all(topic.quiz_average <= 0 for topic in topics),
+                }
+            )
+
+        if len(summaries) < 2 or not selected_material:
+            return ""
+        if not all(summary["untested"] for summary in summaries):
+            return ""
+
+        confidence_values = [int(summary["confidence"]) for summary in summaries]
+        score_values = [int(summary["score"]) for summary in summaries]
+        similar_confidence = max(confidence_values) - min(confidence_values) <= 5
+        near_tied_scores = max(score_values) - min(score_values) <= 8
+        if not similar_confidence and not near_tied_scores:
+            return ""
+
+        selected_id = selected_material.get("id", "")
+        selected_summary = next(
+            (summary for summary in summaries if summary["material"].get("id", "") == selected_id),
+            None,
+        )
+        if not selected_summary:
+            return ""
+
+        title = selected_material.get("title", "this lecture")
+        max_importance = max(float(summary["importance"]) for summary in summaries)
+        max_topics = max(int(summary["topic_count"]) for summary in summaries)
+        if float(selected_summary["importance"]) >= max_importance - 0.1 and max_importance > min(float(summary["importance"]) for summary in summaries) + 0.5:
+            reason = "it has the highest average extracted importance"
+        elif int(selected_summary["topic_count"]) == max_topics and max_topics > min(int(summary["topic_count"]) for summary in summaries):
+            reason = "it covers the most extracted topics"
+        else:
+            reason = "the current risk estimate puts it slightly ahead"
+
+        return (
+            f"All candidate lectures are still untested with similar confidence, so this order is provisional. "
+            f"Start with {title} because {reason}. After one quiz, I can rank the lectures more accurately."
+        )
+
     def _material_from_text(
         self,
         state: Dict[str, object],
@@ -927,7 +985,12 @@ class StudyStrategyService:
             [item["title"] for item in items],
             str(focus_item.get("subject", "")) if focus_item else "",
         )
-        return {"reply": self._format_study_reply(focus_item, material, topics, items, resources)}
+        provisional_note = (
+            self._provisional_material_priority_note(state, focus_item, material)
+            if choose_highest_risk and material
+            else ""
+        )
+        return {"reply": self._format_study_reply(focus_item, material, topics, items, resources, provisional_note)}
 
     def _resolve_material_and_topics(
         self,
@@ -1037,10 +1100,13 @@ Rules:
         topics: List[StudyTopic],
         items: List[Dict[str, object]],
         resources: List[Dict[str, str]],
+        provisional_note: str = "",
     ) -> str:
         focus_label = focus_item.get("title", "your focus") if focus_item else "your focus"
         material_label = material.get("title", "your uploaded material") if material else "your uploaded material"
         lines = [f"For {focus_label}, focus on {material_label} first."]
+        if provisional_note:
+            lines.append(provisional_note)
         if topics:
             lines.append("Lecture topics: " + ", ".join(topic.name for topic in topics))
         lines.append("")
@@ -1485,13 +1551,13 @@ Rules:
         is_mcq = "mcq" in question_type.lower()
         delta = 3 if is_mcq else 5
         penalty = 1 if is_mcq else 2
-        mastery_delta = delta if score >= 70 else -penalty
         for topic in state["topics"]:
             if topic["id"] != topic_id:
                 continue
             old_mastery = int(topic.get("mastery", 0))
             old_confidence = int(topic.get("confidence", 0))
             old_quiz = int(topic.get("quiz_average", 0))
+            mastery_delta = delta * 2 if score >= 70 and old_mastery < 50 else delta if score >= 70 else -penalty
             topic["mastery"] = self._clamp_int(old_mastery + mastery_delta, 0, 100)
             topic["confidence"] = self._clamp_int(old_confidence + mastery_delta, 0, 100)
             topic["quiz_average"] = self._clamp_int(round(old_quiz * 0.5 + score * 0.5) if old_quiz else score, 0, 100)

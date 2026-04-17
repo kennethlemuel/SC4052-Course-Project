@@ -105,8 +105,8 @@ Return JSON only with this schema:
       "name": "short concept name",
       "notes": ["2-4 concise study notes grounded in the material"],
       "importance": 1,
-      "mastery": 38,
-      "confidence": 52
+      "mastery": 0,
+      "confidence": 0
     }}
   ]
 }}
@@ -115,7 +115,7 @@ Rules:
 - Return 3 to 8 topics.
 - Names must be meaningful concepts, not fragments.
 - Importance is 1-10 based on exam relevance inferred from the material.
-- Mastery and confidence are initial estimates from 30-65 because no quiz data exists yet.
+- Mastery and confidence must be 0 because uploaded material has not been studied or quizzed yet.
 - Use only information grounded in the material.
 
 Material:
@@ -166,8 +166,8 @@ Material:
                     "name": name[:90],
                     "notes": normalized_notes,
                     "importance": MaterialAnalyzer._clamp_int(item.get("importance", 7), 1, 10),
-                    "mastery": MaterialAnalyzer._clamp_int(item.get("mastery", 38), 30, 65),
-                    "confidence": MaterialAnalyzer._clamp_int(item.get("confidence", 52), 30, 65),
+                    "mastery": MaterialAnalyzer._clamp_int(item.get("mastery", 0), 0, 100),
+                    "confidence": MaterialAnalyzer._clamp_int(item.get("confidence", 0), 0, 100),
                 }
             )
             if len(topics) >= 8:
@@ -203,7 +203,7 @@ Material:
             extracted = [(title, ["Review imported material and create recall questions from it."])]
 
         return [
-            {"name": name, "notes": notes, "importance": 7, "mastery": 38, "confidence": 52}
+            {"name": name, "notes": notes, "importance": 7, "mastery": 0, "confidence": 0}
             for name, notes in extracted[:5]
         ]
 
