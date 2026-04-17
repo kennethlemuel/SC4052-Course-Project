@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from email.message import EmailMessage
 from typing import Dict, Optional
 
-from chief_of_staff.storage import JsonStore
+from study_buddy.storage import JsonStore
 
 
 class AuthService:

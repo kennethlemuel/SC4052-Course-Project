@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, List
 
-from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig, LocalLlmConfig, UserProfile
+from study_buddy.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig, LocalLlmConfig, UserProfile
 
 
 class JsonStore:

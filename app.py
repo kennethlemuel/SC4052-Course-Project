@@ -1,4 +1,4 @@
-from chief_of_staff.server import run_server
+from study_buddy.server import run_server
 
 
 if __name__ == "__main__":

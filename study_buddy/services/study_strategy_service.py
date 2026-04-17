@@ -10,10 +10,10 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
-from chief_of_staff.models import AcademicItem, StudyProfile, StudyTopic
-from chief_of_staff.services.material_analyzer import MaterialAnalyzer
-from chief_of_staff.services.resource_search import ResourceSearch
-from chief_of_staff.storage import JsonStore
+from study_buddy.models import AcademicItem, StudyProfile, StudyTopic
+from study_buddy.services.material_analyzer import MaterialAnalyzer
+from study_buddy.services.resource_search import ResourceSearch
+from study_buddy.storage import JsonStore
 
 
 class StudyStrategyService:

@@ -7,7 +7,7 @@ import urllib.error
 import urllib.request
 from typing import Dict, List
 
-from chief_of_staff.models import LocalLlmConfig
+from study_buddy.models import LocalLlmConfig
 
 
 class MaterialAnalyzer:

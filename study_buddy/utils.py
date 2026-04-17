@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 from typing import Iterable, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
-from chief_of_staff.models import CalendarEvent
+from study_buddy.models import CalendarEvent
 
 
 WEEKDAYS = {

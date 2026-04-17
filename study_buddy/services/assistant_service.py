@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-from chief_of_staff.models import CalendarEvent, UserProfile
-from chief_of_staff.services.calendar_service import CalendarService
-from chief_of_staff.services.planner_service import PlannerService
-from chief_of_staff.utils import (
+from study_buddy.models import CalendarEvent, UserProfile
+from study_buddy.services.calendar_service import CalendarService
+from study_buddy.services.planner_service import PlannerService
+from study_buddy.utils import (
     end_of_week,
     format_event_line,
     parse_duration_minutes,

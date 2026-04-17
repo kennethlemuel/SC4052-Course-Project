@@ -7,9 +7,9 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 from typing import List, Optional
 
-from chief_of_staff.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig
-from chief_of_staff.storage import JsonStore
-from chief_of_staff.utils import form_request, json_request, wrap_http_error
+from study_buddy.models import CalendarEvent, CalendarSourceSettings, GoogleOAuthConfig
+from study_buddy.storage import JsonStore
+from study_buddy.utils import form_request, json_request, wrap_http_error
 
 
 class CalendarAdapter(ABC):

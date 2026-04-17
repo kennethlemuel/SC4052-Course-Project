@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from chief_of_staff.models import UserProfile
-from chief_of_staff.storage import JsonStore
+from study_buddy.models import UserProfile
+from study_buddy.storage import JsonStore
 
 
 class ProfileService:

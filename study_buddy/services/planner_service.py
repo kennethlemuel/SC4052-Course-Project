@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import datetime, time, timedelta
 from typing import Dict, List
 
-from chief_of_staff.models import CalendarEvent, Suggestion, TimeSlot, UserProfile
-from chief_of_staff.utils import daterange, overlap_minutes, sort_events
+from study_buddy.models import CalendarEvent, Suggestion, TimeSlot, UserProfile
+from study_buddy.utils import daterange, overlap_minutes, sort_events
 
 
 class PlannerService:

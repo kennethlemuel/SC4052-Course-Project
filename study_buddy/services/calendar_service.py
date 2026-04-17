@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from chief_of_staff.models import CalendarEvent
-from chief_of_staff.services.calendar_adapters import CalendarAdapter
-from chief_of_staff.utils import describe_day, format_event_line, sort_events
+from study_buddy.models import CalendarEvent
+from study_buddy.services.calendar_adapters import CalendarAdapter
+from study_buddy.utils import describe_day, format_event_line, sort_events
 
 
 class CalendarService:

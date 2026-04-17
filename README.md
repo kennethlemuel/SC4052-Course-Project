@@ -45,7 +45,7 @@ SC4052-Course-Project/
 |-- README.md
 |-- requirements.txt
 |-- .gitignore
-|-- chief_of_staff/
+|-- study_buddy/
 |   |-- __init__.py
 |   |-- models.py
 |   |-- server.py
@@ -71,7 +71,7 @@ SC4052-Course-Project/
     `-- .gitkeep
 ```
 
-Some older backend modules for calendar/planner experiments may still exist under `chief_of_staff/services/`, but the current Study Buddy app is centered on materials, study planning, coach chat, readiness tracking, authentication, and Spotify/focus audio.
+Some older backend modules for calendar/planner experiments may still exist under `study_buddy/services/`, but the current Study Buddy app is centered on materials, study planning, coach chat, readiness tracking, authentication, and Spotify/focus audio.
 
 ## Requirements
 

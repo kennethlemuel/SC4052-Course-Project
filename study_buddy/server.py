@@ -12,11 +12,11 @@ from urllib.parse import parse_qs, urlparse
 
 from pypdf import PdfReader
 
-from chief_of_staff.services.auth_service import AuthService
-from chief_of_staff.services.spotify_service import SpotifyService
-from chief_of_staff.services.study_strategy_service import StudyStrategyService
-from chief_of_staff.storage import JsonStore
-from chief_of_staff.utils import safe_json_loads
+from study_buddy.services.auth_service import AuthService
+from study_buddy.services.spotify_service import SpotifyService
+from study_buddy.services.study_strategy_service import StudyStrategyService
+from study_buddy.storage import JsonStore
+from study_buddy.utils import safe_json_loads
 
 mimetypes.add_type("font/ttf", ".ttf")
 mimetypes.add_type("font/otf", ".otf")
